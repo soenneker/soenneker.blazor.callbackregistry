@@ -4,6 +4,7 @@ using Serilog;
 using Soenneker.Fixtures.Unit;
 using Soenneker.Utils.Test;
 using Soenneker.Blazor.CallbackRegistry.Registrars;
+using Soenneker.Blazor.MockJsRuntime.Registrars;
 
 namespace Soenneker.Blazor.CallbackRegistry.Tests;
 
@@ -25,6 +26,8 @@ public sealed class Fixture : UnitFixture
 
         IConfiguration config = TestUtil.BuildConfig();
         services.AddSingleton(config);
+
+        services.AddMockJsRuntimeAsScoped();
 
         services.AddBlazorCallbackRegistryAsScoped();
     }
