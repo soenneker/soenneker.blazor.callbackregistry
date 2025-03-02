@@ -1,8 +1,5 @@
 export class CallbackRegistryInterop {
 
-    constructor() {
-    }
-
     initialize(dotNetInstance) {
         this.dotNetInstance = dotNetInstance;
     }

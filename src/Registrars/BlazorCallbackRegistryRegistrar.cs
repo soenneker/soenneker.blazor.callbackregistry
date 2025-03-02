@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
-using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Blazor.CallbackRegistry.Registrars;
@@ -11,16 +10,6 @@ namespace Soenneker.Blazor.CallbackRegistry.Registrars;
 /// </summary>
 public static class BlazorCallbackRegistryRegistrar
 {
-    /// <summary>
-    /// Adds <see cref="IBlazorCallbackRegistry"/> as a singleton service. <para/>
-    /// </summary>
-    public static IServiceCollection AddBlazorCallbackRegistryAsSingleton(this IServiceCollection services)
-    {
-        services.AddResourceLoaderAsScoped().TryAddSingleton<IBlazorCallbackRegistry, BlazorCallbackRegistry>();
-
-        return services;
-    }
-
     /// <summary>
     /// Adds <see cref="IBlazorCallbackRegistry"/> as a scoped service. <para/>
     /// </summary>
