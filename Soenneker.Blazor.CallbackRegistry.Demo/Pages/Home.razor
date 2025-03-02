@@ -1,0 +1,34 @@
+﻿@page "/"
+@using Soenneker.Blazor.CallbackRegistry.Abstract
+@using Soenneker.Blazor.CallbackRegistry.Demo.Dtos
+@using Soenneker.Extensions.Task
+@using Soenneker.Extensions.ValueTask
+@inject IBlazorCallbackRegistry BlazorCallbackRegistry
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Home</PageTitle>
+
+<a @onclick="FireTest" >Fire test</a>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BlazorCallbackRegistry.Register<TestDto>("blah", async result => { await CallbackMethod(result).NoSync(); }).NoSync();
+    }
+
+    private async Task CallbackMethod(TestDto testDto)
+    {
+        var x = testDto;
+    }
+
+    private async Task FireTest()
+    {
+        await JsRuntime.InvokeVoidAsync("test");
+    }
+
+}
