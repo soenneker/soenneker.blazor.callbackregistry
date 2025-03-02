@@ -7,9 +7,7 @@ export class CallbackRegistryInterop {
     sendToCallback(id, data) {
         const jsonPayload = JSON.stringify(data);
 
-        if (this.dotNetInstance) {
-            this.dotNetInstance.invokeMethodAsync('ReceiveJsCallback', id, jsonPayload);
-        }
+        this.dotNetInstance.invokeMethodAsync('ReceiveJsCallback', id, jsonPayload);
     }
 }
 

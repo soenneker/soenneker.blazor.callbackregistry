@@ -19,16 +19,23 @@ public class BlazorCallbackRegistry : IBlazorCallbackRegistry
     private readonly AsyncSingleton _moduleInitializer;
 
     private const string _module = "Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.js";
+    private const string _moduleNamespace = "CallbackRegistryInterop";
 
     private readonly IResourceLoader _resourceLoader;
 
-    public BlazorCallbackRegistry(IResourceLoader resourceLoader)
+    private DotNetObjectReference<BlazorCallbackRegistry>? _dotNetObjectReference;
+
+    public BlazorCallbackRegistry(IResourceLoader resourceLoader, IJSRuntime jSRuntime)
     {
         _resourceLoader = resourceLoader;
 
         _moduleInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await resourceLoader.ImportModuleAndWaitUntilAvailable(_module, "CallbackRegistryInterop", 100, token).NoSync();
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token).NoSync();
+
+            _dotNetObjectReference = DotNetObjectReference.Create(this);
+
+            await jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", _dotNetObjectReference).NoSync();
 
             return new object();
         });
@@ -61,6 +68,12 @@ public class BlazorCallbackRegistry : IBlazorCallbackRegistry
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
+
+        if (_dotNetObjectReference != null)
+        {
+            _dotNetObjectReference.Dispose();
+            _dotNetObjectReference = null;
+        }
 
         await _resourceLoader.DisposeModule(_module).NoSync();
 
