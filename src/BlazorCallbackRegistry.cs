@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Soenneker.Blazor.CallbackRegistry;
 
 /// <inheritdoc cref="IBlazorCallbackRegistry"/>
-public class BlazorCallbackRegistry : IBlazorCallbackRegistry
+public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 {
     private readonly ConcurrentDictionary<string, IBlazorCallbackWrapper> _callbacks = new();
 
@@ -67,8 +67,6 @@ public class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
     public async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
-
         if (_dotNetObjectReference != null)
         {
             _dotNetObjectReference.Dispose();

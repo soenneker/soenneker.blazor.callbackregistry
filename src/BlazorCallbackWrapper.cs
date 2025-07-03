@@ -6,7 +6,7 @@ using Soenneker.Utils.Json;
 
 namespace Soenneker.Blazor.CallbackRegistry;
 
-public class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
+public sealed class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
 {
     private readonly Func<T, Task> _callback;
 
