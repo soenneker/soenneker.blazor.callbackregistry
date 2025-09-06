@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using Soenneker.Blazor.CallbackRegistry.Abstract
 @using Soenneker.Blazor.CallbackRegistry.Demo.Dtos
 @using Soenneker.Extensions.Task
@@ -18,7 +18,7 @@ Welcome to your new app.
 
     protected override async Task OnInitializedAsync()
     {
-        await BlazorCallbackRegistry.Register<TestDto>("blah", async result => { await CallbackMethod(result).NoSync(); }).NoSync();
+        await BlazorCallbackRegistry.Register<TestDto>("blah", async result => { await CallbackMethod(result); });
     }
 
     private async Task CallbackMethod(TestDto testDto)

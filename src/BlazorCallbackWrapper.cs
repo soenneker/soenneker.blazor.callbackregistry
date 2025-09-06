@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Extensions.Task;
@@ -21,7 +21,7 @@ public sealed class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
 
         if (data != null)
         {
-            await _callback(data).NoSync();
+            await _callback(data);
         }
     }
 }

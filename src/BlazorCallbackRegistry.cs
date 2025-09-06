@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
@@ -31,11 +31,11 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
         _moduleInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token).NoSync();
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token);
 
             _dotNetObjectReference = DotNetObjectReference.Create(this);
 
-            await jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", _dotNetObjectReference).NoSync();
+            await jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", _dotNetObjectReference);
 
             return new object();
         });
@@ -43,7 +43,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
     public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
     {
-        await _moduleInitializer.Init(cancellationToken).NoSync();
+        await _moduleInitializer.Init(cancellationToken);
 
         _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
     }
@@ -61,7 +61,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     {
         if (_callbacks.TryGetValue(id, out IBlazorCallbackWrapper? callbackWrapper))
         {
-            await callbackWrapper.Invoke(jsonPayload).NoSync();
+            await callbackWrapper.Invoke(jsonPayload);
         }
     }
 
@@ -73,8 +73,8 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
             _dotNetObjectReference = null;
         }
 
-        await _resourceLoader.DisposeModule(_module).NoSync();
+        await _resourceLoader.DisposeModule(_module);
 
-        await _moduleInitializer.DisposeAsync().NoSync();
+        await _moduleInitializer.DisposeAsync();
     }
 }

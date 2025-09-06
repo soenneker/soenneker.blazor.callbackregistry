@@ -1,4 +1,4 @@
-﻿using Soenneker.Blazor.CallbackRegistry.Abstract;
+using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Tests.FixturedUnit;
 using Xunit;
 

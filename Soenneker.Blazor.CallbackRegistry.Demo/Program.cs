@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Soenneker.Blazor.CallbackRegistry.Demo;
 using Soenneker.Blazor.CallbackRegistry.Registrars;
