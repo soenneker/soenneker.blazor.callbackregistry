@@ -43,7 +43,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.JSInterop" Version="9.0.10" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1511" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1512" />
         <PackageReference Include="Soenneker.Utils.Json" Version="3.0.2357" />
     </ItemGroup>
 </Project>
