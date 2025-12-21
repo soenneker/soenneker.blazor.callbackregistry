@@ -2,7 +2,7 @@ using Microsoft.JSInterop;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
-using Soenneker.Utils.AsyncSingleton;
+using Soenneker.Asyncs.Initializers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 {
     private readonly ConcurrentDictionary<string, IBlazorCallbackWrapper> _callbacks = new();
 
-    private readonly AsyncSingleton _moduleInitializer;
+    private readonly AsyncInitializer _moduleInitializer;
 
     private const string _module = "Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.js";
     private const string _moduleNamespace = "CallbackRegistryInterop";
@@ -29,15 +29,13 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     {
         _resourceLoader = resourceLoader;
 
-        _moduleInitializer = new AsyncSingleton(async (token, _) =>
+        _moduleInitializer = new AsyncInitializer(async token =>
         {
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token);
 
             _dotNetObjectReference = DotNetObjectReference.Create(this);
 
             await jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", _dotNetObjectReference);
-
-            return new object();
         });
     }
 
