@@ -15,13 +15,14 @@ public sealed class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
         _callback = callback;
     }
 
-    public async ValueTask Invoke(string jsonPayload)
+    public ValueTask Invoke(string jsonPayload)
     {
         var data = JsonUtil.Deserialize<T>(jsonPayload);
 
-        if (data != null)
-        {
-            await _callback(data);
-        }
+        if (data is null)
+            return ValueTask.CompletedTask;
+
+        Task task = _callback(data);
+        return task.IsCompletedSuccessfully ? ValueTask.CompletedTask : new ValueTask(task);
     }
 }

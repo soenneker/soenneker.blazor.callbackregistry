@@ -4,7 +4,6 @@ using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Asyncs.Initializers;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,16 +43,18 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
     {
         await _moduleInitializer.Init(cancellationToken);
-
         _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
+    }
+
+    public async ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, CancellationToken cancellationToken = default)
+    {
+        await _moduleInitializer.Init(cancellationToken);
+        _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback);
     }
 
     public void Unregister(string id)
     {
-        if (_callbacks.ContainsKey(id))
-        {
-            _callbacks.Remove(id, out _);
-        }
+        _callbacks.TryRemove(id, out _);
     }
 
     [JSInvokable]
