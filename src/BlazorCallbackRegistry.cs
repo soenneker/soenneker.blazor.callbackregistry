@@ -1,7 +1,6 @@
 using Microsoft.JSInterop;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Extensions.ValueTask;
 using Soenneker.Asyncs.Initializers;
 using System;
 using System.Collections.Concurrent;
@@ -22,21 +21,24 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     private const string _moduleNamespace = "CallbackRegistryInterop";
 
     private readonly IResourceLoader _resourceLoader;
+    private readonly IJSRuntime _jSRuntime;
 
     private DotNetObjectReference<BlazorCallbackRegistry>? _dotNetObjectReference;
 
     public BlazorCallbackRegistry(IResourceLoader resourceLoader, IJSRuntime jSRuntime)
     {
         _resourceLoader = resourceLoader;
+        _jSRuntime = jSRuntime;
+        _moduleInitializer = new AsyncInitializer(Initialize);
+    }
 
-        _moduleInitializer = new AsyncInitializer(async token =>
-        {
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token);
+    private async ValueTask Initialize(CancellationToken token)
+    {
+        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token);
 
-            _dotNetObjectReference = DotNetObjectReference.Create(this);
+        _dotNetObjectReference = DotNetObjectReference.Create(this);
 
-            await jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", _dotNetObjectReference);
-        });
+        await _jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", token, _dotNetObjectReference);
     }
 
     public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
@@ -74,5 +76,18 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         await _resourceLoader.DisposeModule(_module);
 
         await _moduleInitializer.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        if (_dotNetObjectReference != null)
+        {
+            _dotNetObjectReference.Dispose();
+            _dotNetObjectReference = null;
+        }
+
+        _resourceLoader.DisposeModule(_module);
+
+        _moduleInitializer.Dispose();
     }
 }

@@ -7,7 +7,7 @@ namespace Soenneker.Blazor.CallbackRegistry.Abstract;
 /// <summary>
 /// A generic registry to register and invoke instance-specific Blazor JS callbacks
 /// </summary>
-public interface IBlazorCallbackRegistry : IAsyncDisposable
+public interface IBlazorCallbackRegistry : IAsyncDisposable, IDisposable
 {
     ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default);
 

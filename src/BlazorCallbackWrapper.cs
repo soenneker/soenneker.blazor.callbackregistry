@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
-using Soenneker.Extensions.Task;
 using Soenneker.Utils.Json;
 
 namespace Soenneker.Blazor.CallbackRegistry;
 
+///<inheritdoc cref="IBlazorCallbackWrapper"/>
 public sealed class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
 {
     private readonly Func<T, Task> _callback;
