@@ -38,7 +38,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
         _dotNetObjectReference = DotNetObjectReference.Create(this);
 
-        await _jSRuntime.InvokeVoidAsync($"{_moduleNamespace}.initialize", token, _dotNetObjectReference);
+        await _jSRuntime.InvokeVoidAsync("CallbackRegistryInterop.initialize", token, _dotNetObjectReference);
     }
 
     public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
