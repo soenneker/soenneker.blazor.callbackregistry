@@ -2,6 +2,8 @@ using Microsoft.JSInterop;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Asyncs.Initializers;
+using Soenneker.Extensions.CancellationTokens;
+using Soenneker.Utils.CancellationScopes;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -24,6 +26,8 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
     private DotNetObjectReference<BlazorCallbackRegistry>? _dotNetObjectReference;
 
+    private readonly CancellationScope _cancellationScope = new();
+
     public BlazorCallbackRegistry(IResourceLoader resourceLoader, IJSRuntime jSRuntime)
     {
         _resourceLoader = resourceLoader;
@@ -42,14 +46,24 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
     public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
     {
-        await _moduleInitializer.Init(cancellationToken);
-        _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _moduleInitializer.Init(linked);
+            _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
+        }
     }
 
     public async ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, CancellationToken cancellationToken = default)
     {
-        await _moduleInitializer.Init(cancellationToken);
-        _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _moduleInitializer.Init(linked);
+            _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback);
+        }
     }
 
     public void Unregister(string id)
@@ -77,6 +91,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         await _resourceLoader.DisposeModule(_module);
 
         await _moduleInitializer.DisposeAsync();
+        await _cancellationScope.DisposeAsync();
     }
 
     public void Dispose()
@@ -90,5 +105,6 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         _resourceLoader.DisposeModule(_module);
 
         _moduleInitializer.Dispose();
+        _cancellationScope.DisposeAsync().GetAwaiter().GetResult();
     }
 }
