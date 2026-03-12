@@ -4,13 +4,14 @@
   </Folder>
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/build-and-test.yml" />
+    <File Path=".github/workflows/codeql.yml" />
     <File Path=".github/workflows/publish-package.yml" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/Soenneker.Blazor.CallbackRegistry.csproj" />
+    <Project Path="src/Soenneker.Blazor.CallbackRegistry/Soenneker.Blazor.CallbackRegistry.csproj" />
   </Folder>
   <Folder Name="/test/">
-    <Project Path="Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj" />
     <Project Path="test/Soenneker.Blazor.CallbackRegistry.Tests/Soenneker.Blazor.CallbackRegistry.Tests.csproj" />
   </Folder>
+  <Project Path="Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj" />
 </Solution>
