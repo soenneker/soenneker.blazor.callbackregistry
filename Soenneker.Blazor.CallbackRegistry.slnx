@@ -13,6 +13,6 @@
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Soenneker.Blazor.CallbackRegistry.Tests/Soenneker.Blazor.CallbackRegistry.Tests.csproj" />
+    <Project Path="Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj" />
   </Folder>
-  <Project Path="Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj" />
 </Solution>
