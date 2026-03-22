@@ -37,7 +37,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
     private async ValueTask Initialize(CancellationToken token)
     {
-        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleNamespace, 100, token);
+        await _resourceLoader.ImportModule(_module, token);
 
         _dotNetObjectReference = DotNetObjectReference.Create(this);
 
