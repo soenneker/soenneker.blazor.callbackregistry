@@ -1,3 +1,4 @@
+using Soenneker.Quark;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Soenneker.Blazor.CallbackRegistry.Demo;
@@ -12,3 +13,5 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddBlazorCallbackRegistryAsScoped();
 
 await builder.Build().RunAsync();
+
+
