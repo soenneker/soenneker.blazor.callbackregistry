@@ -6,27 +6,31 @@
 
 <PageTitle>Home</PageTitle>
 
-<a @onclick="FireTest" >Fire test</a>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<Div Space="Space.Y.Is6">
+    <DemoPanel Title="Callback registry" Description="Registers a typed callback and invokes test interop from the button.">
+        <DemoButtonRow>
+            <Button OnClick="FireTest">Fire test</Button>
+        </DemoButtonRow>
+        <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+            Open the browser devtools console when testing.
+        </Paragraph>
+    </DemoPanel>
+</Div>
 
 @code {
-
     protected override async Task OnInitializedAsync()
     {
         await BlazorCallbackRegistry.Register<TestDto>("blah", async result => { await CallbackMethod(result); });
     }
 
-    private async Task CallbackMethod(TestDto testDto)
+    private static Task CallbackMethod(TestDto testDto)
     {
-        TestDto x = testDto;
+        _ = testDto;
+        return Task.CompletedTask;
     }
 
     private async Task FireTest()
     {
         await JsRuntime.InvokeVoidAsync("test");
     }
-
 }

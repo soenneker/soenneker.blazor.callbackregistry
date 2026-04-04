@@ -1,6 +1,7 @@
-using Soenneker.Quark;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Soenneker.Quark;
+using Soenneker.Quark.Gen.Lucide.Generated;
 using Soenneker.Blazor.CallbackRegistry.Demo;
 using Soenneker.Blazor.CallbackRegistry.Registrars;
 
@@ -11,6 +12,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddBlazorCallbackRegistryAsScoped();
+builder.Services.AddQuarkSuiteAsScoped();
+builder.Services.AddLucideIconsAsScoped();
 
 await builder.Build().RunAsync();
 
