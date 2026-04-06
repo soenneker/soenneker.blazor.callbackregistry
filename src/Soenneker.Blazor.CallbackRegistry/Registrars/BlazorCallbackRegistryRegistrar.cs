@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
-using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
+using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 
 namespace Soenneker.Blazor.CallbackRegistry.Registrars;
 
@@ -15,7 +15,7 @@ public static class BlazorCallbackRegistryRegistrar
     /// </summary>
     public static IServiceCollection AddBlazorCallbackRegistryAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<IBlazorCallbackRegistry, BlazorCallbackRegistry>();
+        services.AddModuleImportUtilAsScoped().TryAddScoped<IBlazorCallbackRegistry, BlazorCallbackRegistry>();
 
         return services;
     }

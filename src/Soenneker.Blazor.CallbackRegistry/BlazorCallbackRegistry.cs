@@ -1,7 +1,6 @@
 using Microsoft.JSInterop;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
 using System;
@@ -16,32 +15,27 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 {
     private readonly ConcurrentDictionary<string, IBlazorCallbackWrapper> _callbacks = new();
 
-    private readonly AsyncInitializer _moduleInitializer;
+    private const string _module = "/_content/Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.js";
 
-    private const string _module = "Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.js";
-    private const string _moduleNamespace = "CallbackRegistryInterop";
-
-    private readonly IResourceLoader _resourceLoader;
-    private readonly IJSRuntime _jSRuntime;
+    private readonly IModuleImportUtil _moduleImportUtil;
 
     private DotNetObjectReference<BlazorCallbackRegistry>? _dotNetObjectReference;
 
     private readonly CancellationScope _cancellationScope = new();
 
-    public BlazorCallbackRegistry(IResourceLoader resourceLoader, IJSRuntime jSRuntime)
+    public BlazorCallbackRegistry(IModuleImportUtil moduleImportUtil)
     {
-        _resourceLoader = resourceLoader;
-        _jSRuntime = jSRuntime;
-        _moduleInitializer = new AsyncInitializer(Initialize);
+        _moduleImportUtil = moduleImportUtil;
     }
 
-    private async ValueTask Initialize(CancellationToken token)
+    private async ValueTask EnsureJsInitialized(CancellationToken cancellationToken)
     {
-        await _resourceLoader.ImportModule(_module, token);
+        if (_dotNetObjectReference != null)
+            return;
 
         _dotNetObjectReference = DotNetObjectReference.Create(this);
-
-        await _jSRuntime.InvokeVoidAsync("CallbackRegistryInterop.initialize", token, _dotNetObjectReference);
+        IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_module, cancellationToken);
+        await module.InvokeVoidAsync("initialize", cancellationToken, _dotNetObjectReference);
     }
 
     public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
@@ -50,7 +44,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
         using (source)
         {
-            await _moduleInitializer.Init(linked);
+            await EnsureJsInitialized(linked);
             _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
         }
     }
@@ -61,7 +55,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
         using (source)
         {
-            await _moduleInitializer.Init(linked);
+            await EnsureJsInitialized(linked);
             _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback);
         }
     }
@@ -88,23 +82,8 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
             _dotNetObjectReference = null;
         }
 
-        await _resourceLoader.DisposeModule(_module);
+        await _moduleImportUtil.DisposeContentModule(_module);
 
-        await _moduleInitializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
-    }
-
-    public void Dispose()
-    {
-        if (_dotNetObjectReference != null)
-        {
-            _dotNetObjectReference.Dispose();
-            _dotNetObjectReference = null;
-        }
-
-        _resourceLoader.DisposeModule(_module);
-
-        _moduleInitializer.Dispose();
-        _cancellationScope.DisposeAsync().GetAwaiter().GetResult();
     }
 }

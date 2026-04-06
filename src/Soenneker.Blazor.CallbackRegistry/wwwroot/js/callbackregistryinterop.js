@@ -1,14 +1,11 @@
-export class CallbackRegistryInterop {
+let dotNetInstance;
 
-    initialize(dotNetInstance) {
-        this.dotNetInstance = dotNetInstance;
-    }
-
-    sendToCallback(id, data) {
-        const jsonPayload = JSON.stringify(data);
-
-        this.dotNetInstance.invokeMethodAsync('ReceiveJsCallback', id, jsonPayload);
-    }
+export function initialize(dotNet) {
+    dotNetInstance = dotNet;
 }
 
-window.CallbackRegistryInterop = new CallbackRegistryInterop();
+export function sendToCallback(id, data) {
+    const jsonPayload = JSON.stringify(data);
+
+    dotNetInstance.invokeMethodAsync('ReceiveJsCallback', id, jsonPayload);
+}
