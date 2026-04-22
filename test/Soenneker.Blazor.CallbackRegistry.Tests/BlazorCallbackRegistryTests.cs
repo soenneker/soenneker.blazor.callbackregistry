@@ -1,20 +1,19 @@
 using Soenneker.Blazor.CallbackRegistry.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Blazor.CallbackRegistry.Tests;
 
-[Collection("Collection")]
-public class BlazorCallbackRegistryTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class BlazorCallbackRegistryTests : HostedUnitTest
 {
     private readonly IBlazorCallbackRegistry _util;
 
-    public BlazorCallbackRegistryTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public BlazorCallbackRegistryTests(Host host) : base(host)
     {
         _util = Resolve<IBlazorCallbackRegistry>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
