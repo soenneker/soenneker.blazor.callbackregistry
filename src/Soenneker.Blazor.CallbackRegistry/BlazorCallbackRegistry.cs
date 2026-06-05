@@ -65,6 +65,12 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         _callbacks.TryRemove(id, out _);
     }
 
+    /// <summary>
+    /// Executes the receive js callback operation.
+    /// </summary>
+    /// <param name="id">The identifier.</param>
+    /// <param name="jsonPayload">The json payload.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [JSInvokable]
     public async Task ReceiveJsCallback(string id, string jsonPayload)
     {
@@ -74,6 +80,10 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         }
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         if (_dotNetObjectReference != null)
