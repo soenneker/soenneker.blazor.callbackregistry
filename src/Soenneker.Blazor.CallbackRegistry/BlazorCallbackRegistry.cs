@@ -66,11 +66,11 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     }
 
     /// <summary>
-    /// Executes the receive js callback operation.
+    /// Routes a JavaScript callback payload to the .NET callback registered under the supplied ID.
     /// </summary>
-    /// <param name="id">The identifier.</param>
-    /// <param name="jsonPayload">The json payload.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="id">Identifier of the blazor callback registry instance or registration to target.</param>
+    /// <param name="jsonPayload">JSON payload supplied to the callback.</param>
+    /// <returns>A task that completes when the registered callback has processed the payload.</returns>
     [JSInvokable]
     public async Task ReceiveJsCallback(string id, string jsonPayload)
     {

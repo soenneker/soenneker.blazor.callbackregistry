@@ -10,30 +10,30 @@ namespace Soenneker.Blazor.CallbackRegistry.Abstract;
 public interface IBlazorCallbackRegistry : IAsyncDisposable
 {
     /// <summary>
-    /// Executes the register operation.
+    /// Registers a callback with the blazor callback registry.
     /// </summary>
-    /// <typeparam name="T">The T type.</typeparam>
-    /// <param name="id">The identifier.</param>
-    /// <param name="callback">The callback.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <typeparam name="T">Type of value handled by the blazor callback registry.</typeparam>
+    /// <param name="id">Identifier of the blazor callback registry instance or registration to target.</param>
+    /// <param name="callback">Callback to invoke when a matching payload is received.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when callback registration is finished.</returns>
     ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the register operation.
+    /// Registers a callback with the blazor callback registry.
     /// </summary>
-    /// <typeparam name="TState">The TState type.</typeparam>
-    /// <typeparam name="T">The T type.</typeparam>
-    /// <param name="id">The identifier.</param>
-    /// <param name="state">The state.</param>
-    /// <param name="callback">The callback.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <typeparam name="TState">Type of state passed to the callback.</typeparam>
+    /// <typeparam name="T">Type of value handled by the blazor callback registry.</typeparam>
+    /// <param name="id">Identifier of the blazor callback registry instance or registration to target.</param>
+    /// <param name="state">State value passed to the callback when it is invoked.</param>
+    /// <param name="callback">Callback to invoke when a matching payload is received.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when callback registration is finished.</returns>
     ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the unregister operation.
+    /// Removes the callback identified by the supplied ID from the blazor callback registry.
     /// </summary>
-    /// <param name="id">The identifier.</param>
+    /// <param name="id">Identifier of the blazor callback registry instance or registration to target.</param>
     void Unregister(string id);
 }

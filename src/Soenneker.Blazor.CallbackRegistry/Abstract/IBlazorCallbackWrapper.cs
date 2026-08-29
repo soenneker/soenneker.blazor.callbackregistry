@@ -8,9 +8,9 @@ namespace Soenneker.Blazor.CallbackRegistry.Abstract;
 public interface IBlazorCallbackWrapper
 {
     /// <summary>
-    /// Executes the invoke operation.
+    /// Invokes the blazor callback wrapper with the supplied payload.
     /// </summary>
-    /// <param name="jsonPayload">The json payload.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="jsonPayload">JSON payload supplied to the callback.</param>
+    /// <returns>A task that completes when the callback has finished running.</returns>
     ValueTask Invoke(string jsonPayload);
 }
