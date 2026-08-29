@@ -5,43 +5,71 @@
 
 # Soenneker.Blazor.CallbackRegistry
 
-A generic registry to register and invoke instance-specific Blazor JS callbacks.
+A scoped bridge for routing JavaScript events to typed, instance-specific .NET callbacks by ID.
 
-## Install
+## Installation and registration
 
 ```bash
 dotnet add package Soenneker.Blazor.CallbackRegistry
 ```
 
-## Quick start
-
 ```csharp
 using Soenneker.Blazor.CallbackRegistry.Registrars;
-using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-var result = services.AddBlazorCallbackRegistryAsScoped();
+builder.Services.AddBlazorCallbackRegistryAsScoped();
 ```
 
-Adds `IBlazorCallbackRegistry` as a scoped service.
+## Register a callback
 
-## What you get
+Register after the component's first render so JavaScript interop is available. Unregister component-owned IDs when the component is disposed.
 
-- `IBlazorCallbackRegistry` — A generic registry to register and invoke instance-specific Blazor JS callbacks.
-- `IBlazorCallbackWrapper` — Defines the blazor callback wrapper contract.
-- `BlazorCallbackRegistryRegistrar` — A generic registry to register and invoke instance-specific Blazor JS callbacks.
+```razor
+@implements IDisposable
+@inject IBlazorCallbackRegistry CallbackRegistry
 
-## API at a glance
+@code {
+    private const string CallbackId = "orders:active";
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IBlazorCallbackRegistry.Register(id, callback, cancellationToken)` | Registers a callback with the blazor callback registry. | A task that completes when callback registration is finished. |
-| `IBlazorCallbackRegistry.Register(id, state, callback, cancellationToken)` | Registers a callback with the blazor callback registry. | A task that completes when callback registration is finished. |
-| `IBlazorCallbackRegistry.Unregister(id)` | Removes the callback identified by the supplied ID from the blazor callback registry. | Returns no value; the requested change is complete when the method returns. |
-| `IBlazorCallbackWrapper.Invoke(jsonPayload)` | Invokes the blazor callback wrapper with the supplied payload. | A task that completes when the callback has finished running. |
-| `BlazorCallbackRegistryRegistrar.AddBlazorCallbackRegistryAsScoped(services)` | Adds `IBlazorCallbackRegistry` as a scoped service. | The same service collection, so additional registrations can be chained. |
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await CallbackRegistry.Register<OrderUpdated>(CallbackId, OnOrderUpdated);
+    }
 
-## Practical notes
+    private Task OnOrderUpdated(OrderUpdated update)
+    {
+        // Apply the update and refresh component state as needed.
+        return Task.CompletedTask;
+    }
 
-- Cancellation stops pending work; it does not undo work that has already completed.
-- Dispose instances you own when their scope ends so held resources can be released.
+    public void Dispose() => CallbackRegistry.Unregister(CallbackId);
+}
+```
+
+Registering the same ID again replaces its callback. IDs share the registry's DI scope, so use stable, collision-resistant names for independently rendered components. The stateful overload stores a state value with the callback:
+
+```csharp
+await CallbackRegistry.Register<MyComponent, OrderUpdated>(
+    callbackId,
+    this,
+    static (component, update) => component.OnOrderUpdated(update));
+```
+
+## Send an event from JavaScript
+
+Import the package module using the application's base URI, then await `sendToCallback` so .NET deserialization or callback failures are observable by JavaScript:
+
+```javascript
+const callbackRegistry = await import(new URL(
+    "_content/Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.js",
+    document.baseURI));
+
+await callbackRegistry.sendToCallback("orders:active", {
+    orderId: "2d8f1d42",
+    status: "shipped"
+});
+```
+
+The payload is serialized in JavaScript and deserialized as the registered generic type in .NET. Keep payload types JSON-compatible. A missing ID is ignored; malformed JSON or a callback exception rejects the JavaScript promise.
+
+`IBlazorCallbackRegistry` is scoped and owns the JavaScript bridge reference. Let DI dispose it. Do not manually dispose an injected registry while other components in the same scope may still use it.
