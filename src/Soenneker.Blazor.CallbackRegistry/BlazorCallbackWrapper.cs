@@ -5,7 +5,7 @@ using Soenneker.Utils.Json;
 
 namespace Soenneker.Blazor.CallbackRegistry;
 
-///<inheritdoc cref="IBlazorCallbackWrapper"/>
+/// <inheritdoc cref="IBlazorCallbackWrapper"/>
 public sealed class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
 {
     private readonly Func<T, Task> _callback;
