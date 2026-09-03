@@ -1,4 +1,6 @@
 using Microsoft.JSInterop;
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Asyncs.Locks;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
@@ -20,7 +22,8 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     private readonly IModuleImportUtil _moduleImportUtil;
 
     private DotNetObjectReference<BlazorCallbackRegistry>? _dotNetObjectReference;
-    private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private readonly AsyncInitializer _initializer;
+    private readonly AsyncLock _gate = new();
     private int _disposed;
 
     private readonly CancellationScope _cancellationScope = new();
@@ -28,41 +31,31 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
     public BlazorCallbackRegistry(IModuleImportUtil moduleImportUtil)
     {
         _moduleImportUtil = moduleImportUtil;
+        _initializer = new AsyncInitializer(InitializeJs);
     }
 
     private async ValueTask EnsureJsInitialized(CancellationToken cancellationToken)
     {
         ThrowIfDisposed();
 
-        if (_dotNetObjectReference != null)
-            return;
+        await _initializer.Init(cancellationToken).ConfigureAwait(false);
+    }
 
-        await _initializationLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+    private async ValueTask InitializeJs(CancellationToken cancellationToken)
+    {
+        ThrowIfDisposed();
+        DotNetObjectReference<BlazorCallbackRegistry> reference = DotNetObjectReference.Create(this);
 
         try
         {
-            ThrowIfDisposed();
-
-            if (_dotNetObjectReference != null)
-                return;
-
-            DotNetObjectReference<BlazorCallbackRegistry> reference = DotNetObjectReference.Create(this);
-
-            try
-            {
-                IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_module, cancellationToken).ConfigureAwait(false);
-                await module.InvokeVoidAsync("initialize", cancellationToken, reference).ConfigureAwait(false);
-                _dotNetObjectReference = reference;
-            }
-            catch
-            {
-                reference.Dispose();
-                throw;
-            }
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_module, cancellationToken).ConfigureAwait(false);
+            await module.InvokeVoidAsync("initialize", cancellationToken, reference).ConfigureAwait(false);
+            _dotNetObjectReference = reference;
         }
-        finally
+        catch
         {
-            _initializationLock.Release();
+            reference.Dispose();
+            throw;
         }
     }
 
@@ -76,16 +69,10 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         using (source)
         {
             await EnsureJsInitialized(linked);
-            await _initializationLock.WaitAsync(linked).ConfigureAwait(false);
-
-            try
+            using (await _gate.Lock(linked).ConfigureAwait(false))
             {
                 ThrowIfDisposed();
                 _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
-            }
-            finally
-            {
-                _initializationLock.Release();
             }
         }
     }
@@ -100,16 +87,10 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         using (source)
         {
             await EnsureJsInitialized(linked);
-            await _initializationLock.WaitAsync(linked).ConfigureAwait(false);
-
-            try
+            using (await _gate.Lock(linked).ConfigureAwait(false))
             {
                 ThrowIfDisposed();
                 _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback);
-            }
-            finally
-            {
-                _initializationLock.Release();
             }
         }
     }
@@ -151,9 +132,9 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
             return;
 
         _cancellationScope.Cancel();
-        await _initializationLock.WaitAsync().ConfigureAwait(false);
+        await _initializer.DisposeAsync().ConfigureAwait(false);
 
-        try
+        using (await _gate.Lock().ConfigureAwait(false))
         {
             if (_dotNetObjectReference != null)
             {
@@ -173,14 +154,10 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 
             _callbacks.Clear();
         }
-        finally
-        {
-            _initializationLock.Release();
-        }
 
         await _moduleImportUtil.DisposeContentModule(_module);
         await _cancellationScope.DisposeAsync();
-        _initializationLock.Dispose();
+        await _gate.DisposeAsync();
     }
 
     private void ThrowIfDisposed()
