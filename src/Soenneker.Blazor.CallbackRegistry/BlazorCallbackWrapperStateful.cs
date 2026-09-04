@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Blazor.CallbackRegistry;
 
+/// <inheritdoc cref="IBlazorCallbackWrapper" />
 internal sealed class BlazorCallbackWrapperStateful<TState, T> : IBlazorCallbackWrapper
 {
     private readonly TState _state;
