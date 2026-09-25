@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,12 +15,13 @@ public interface IBlazorCallbackRegistry : IAsyncDisposable
     /// </summary>
     /// <typeparam name="T">Type of value handled by the blazor callback registry.</typeparam>
     /// <param name="id">Identifier of the blazor callback registry instance or registration to target.</param>
+    /// <param name="typeInfo">Source-generated metadata for the callback payload.</param>
     /// <param name="callback">Callback to invoke when a matching payload is received.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when callback registration is finished.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="id"/> is empty or whitespace.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="callback"/> is null.</exception>
-    ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default);
+    ValueTask Register<T>(string id, Func<T, Task> callback, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Registers or replaces a stateful callback under the supplied ID and initializes the JavaScript bridge if necessary.
@@ -28,12 +30,13 @@ public interface IBlazorCallbackRegistry : IAsyncDisposable
     /// <typeparam name="T">Type of value handled by the blazor callback registry.</typeparam>
     /// <param name="id">Identifier of the blazor callback registry instance or registration to target.</param>
     /// <param name="state">State value passed to the callback when it is invoked.</param>
+    /// <param name="typeInfo">Source-generated metadata for the callback payload.</param>
     /// <param name="callback">Callback to invoke when a matching payload is received.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when callback registration is finished.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="id"/> is empty or whitespace.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="callback"/> is null.</exception>
-    ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, CancellationToken cancellationToken = default);
+    ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes the callback identified by the supplied ID from the blazor callback registry.

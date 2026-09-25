@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Asyncs.Locks;
@@ -59,7 +60,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
         }
     }
 
-    public async ValueTask Register<T>(string id, Func<T, Task> callback, CancellationToken cancellationToken = default)
+    public async ValueTask Register<T>(string id, Func<T, Task> callback, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentNullException.ThrowIfNull(callback);
@@ -72,12 +73,12 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
             using (await _gate.Lock(linked).ConfigureAwait(false))
             {
                 ThrowIfDisposed();
-                _callbacks[id] = new BlazorCallbackWrapper<T>(callback);
+                _callbacks[id] = new BlazorCallbackWrapper<T>(callback, typeInfo);
             }
         }
     }
 
-    public async ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, CancellationToken cancellationToken = default)
+    public async ValueTask Register<TState, T>(string id, TState state, Func<TState, T, Task> callback, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentNullException.ThrowIfNull(callback);
@@ -90,7 +91,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
             using (await _gate.Lock(linked).ConfigureAwait(false))
             {
                 ThrowIfDisposed();
-                _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback);
+                _callbacks[id] = new BlazorCallbackWrapperStateful<TState, T>(state, callback, typeInfo);
             }
         }
     }

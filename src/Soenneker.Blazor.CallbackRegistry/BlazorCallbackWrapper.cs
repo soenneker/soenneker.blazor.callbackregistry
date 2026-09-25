@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using System;
 using System.Threading.Tasks;
 using Soenneker.Blazor.CallbackRegistry.Abstract;
@@ -5,19 +6,20 @@ using Soenneker.Utils.Json;
 
 namespace Soenneker.Blazor.CallbackRegistry;
 
-/// <inheritdoc cref="IBlazorCallbackWrapper"/>
 public sealed class BlazorCallbackWrapper<T> : IBlazorCallbackWrapper
 {
+    private readonly JsonTypeInfo<T> _typeInfo;
     private readonly Func<T, Task> _callback;
 
-    public BlazorCallbackWrapper(Func<T, Task> callback)
+    public BlazorCallbackWrapper(Func<T, Task> callback, JsonTypeInfo<T> typeInfo)
     {
         _callback = callback;
+        _typeInfo = typeInfo ?? throw new ArgumentNullException(nameof(typeInfo));
     }
 
     public ValueTask Invoke(string jsonPayload)
     {
-        var data = JsonUtil.Deserialize<T>(jsonPayload);
+        var data = JsonUtil.Deserialize<T>(jsonPayload, _typeInfo);
 
         if (data is null)
             return ValueTask.CompletedTask;
