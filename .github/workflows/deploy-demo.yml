@@ -35,23 +35,23 @@ jobs:
           workloads: wasm-tools
 
       - name: Restore demo
-        run: dotnet restore Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj --verbosity minimal
+        run: dotnet restore test/Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj --verbosity minimal
 
       - name: Publish Blazor WebAssembly Demo
-        run: dotnet publish Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj -c Release
+        run: dotnet publish test/Soenneker.Blazor.CallbackRegistry.Demo/Soenneker.Blazor.CallbackRegistry.Demo.csproj -c Release
 
       - name: Set Base Href for GitHub Pages
         run: |
-          cd Soenneker.Blazor.CallbackRegistry.Demo/bin/Release/net10.0/publish/wwwroot
+          cd test/Soenneker.Blazor.CallbackRegistry.Demo/bin/Release/net10.0/publish/wwwroot
           sed -i 's|%BASE_URL%|/${{ github.event.repository.name }}/|g' index.html || exit 1
 
       - name: Add .nojekyll
-        run: touch Soenneker.Blazor.CallbackRegistry.Demo/bin/Release/net10.0/publish/wwwroot/.nojekyll
+        run: touch test/Soenneker.Blazor.CallbackRegistry.Demo/bin/Release/net10.0/publish/wwwroot/.nojekyll
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: Soenneker.Blazor.CallbackRegistry.Demo/bin/Release/net10.0/publish/wwwroot
+          path: test/Soenneker.Blazor.CallbackRegistry.Demo/bin/Release/net10.0/publish/wwwroot
 
       - name: Deploy to GitHub Pages
         id: deployment
