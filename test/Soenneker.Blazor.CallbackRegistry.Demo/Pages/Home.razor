@@ -20,7 +20,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await BlazorCallbackRegistry.Register<TestDto>("blah", async result => { await CallbackMethod(result); });
+        await BlazorCallbackRegistry.Register("blah", CallbackMethod, DemoJsonContext.Default.TestDto);
     }
 
     private static Task CallbackMethod(TestDto testDto)
