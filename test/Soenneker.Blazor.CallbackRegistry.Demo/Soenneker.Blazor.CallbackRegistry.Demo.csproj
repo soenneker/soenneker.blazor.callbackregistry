@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
+        <StaticWebAssetSpaFallbackEnabled>true</StaticWebAssetSpaFallbackEnabled>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -8,21 +9,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.13" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.13" PrivateAssets="all" />
-        <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.287">
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="11.0.0-rc.3.26522.148" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Gateway" Version="11.0.0-rc.3.26522.148" PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.301">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest" Version="4.0.281">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest" Version="4.0.295">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.294">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.316">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Suite" Version="4.0.1559" />
+        <PackageReference Include="Soenneker.Quark.Suite" Version="11.0.1611" />
     </ItemGroup>
 
     <ItemGroup>
