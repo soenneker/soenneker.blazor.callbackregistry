@@ -31,6 +31,13 @@
 
     private async Task FireTest()
     {
-        await JsRuntime.InvokeVoidAsync("test");
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("test");
+        }
+        catch (JSException exception)
+        {
+            throw new JSException($"Callback demo invocation failed: {exception.Message}", exception);
+        }
     }
 }
