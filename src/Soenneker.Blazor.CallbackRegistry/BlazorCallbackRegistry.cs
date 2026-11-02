@@ -18,7 +18,7 @@ public sealed class BlazorCallbackRegistry : IBlazorCallbackRegistry
 {
     private readonly ConcurrentDictionary<string, IBlazorCallbackWrapper> _callbacks = new();
 
-    private const string _module = "_content/Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.js";
+    private const string _module = "_content/Soenneker.Blazor.CallbackRegistry/js/callbackregistryinterop.min.js";
 
     private readonly IModuleImportUtil _moduleImportUtil;
 
