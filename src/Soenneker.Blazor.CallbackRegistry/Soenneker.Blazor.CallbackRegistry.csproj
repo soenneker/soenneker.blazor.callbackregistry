@@ -49,9 +49,9 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.140" />
         <PackageReference Include="Soenneker.Blazor.Utils.ModuleImport" Version="11.0.1944" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2785" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2786" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.60" PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.61" PrivateAssets="all" />
     </ItemGroup>
 </Project>
